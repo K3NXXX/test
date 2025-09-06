@@ -13,7 +13,7 @@ export function Home() {
 
 	return (
 		<div>
-			<p>bleachhhhhhh</p>
+			<p>bleachhhhhhhвйвйцв</p>
 		</div>
 	)
 }

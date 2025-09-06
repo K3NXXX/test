@@ -28,11 +28,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 5. Перевірка, що білд зібрався
-      - name: List build files
-        run: ls -la ./dist
-
-      # 6. Деплой на EC2 через SSH
+      # 5. Деплой на EC2 через SSH
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -41,7 +37,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           script: |
-            # Створюємо папку для білду, якщо не існує
+            # Створюємо папку для білду, якщо її немає
             sudo mkdir -p /var/www/dist
 
             # Копіюємо білд з GitHub runner на EC2
