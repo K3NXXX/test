@@ -28,7 +28,7 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 5. Завантаження білду на EC2
+      # 5. Завантаження білду на EC2 у тимчасову папку
       - name: Upload build to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -37,9 +37,9 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           source: "dist/*"
-          target: "/home/ubuntu/test/dist"
+          target: "/home/ubuntu/test/dist_tmp"
 
-      # 6. Переміщення білду в /var/www/dist та налаштування nginx
+      # 6. Переміщення білду у /var/www/dist без зайвої папки dist
       - name: Deploy to nginx folder
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -53,10 +53,12 @@ jobs:
             sudo mkdir -p /var/www/dist
             echo "Очищаємо старий білд"
             sudo rm -rf /var/www/dist/*
-            echo "Копіюємо новий білд"
-            sudo cp -r /home/ubuntu/test/dist/* /var/www/dist/
+            echo "Копіюємо новий білд з тимчасової папки"
+            sudo cp -r /home/ubuntu/test/dist_tmp/* /var/www/dist/
             echo "Встановлюємо права для nginx"
             sudo chown -R www-data:www-data /var/www/dist
             sudo chmod -R 755 /var/www/dist
             echo "Перезавантажуємо nginx"
             sudo systemctl reload nginx
+            echo "Очищаємо тимчасову папку"
+            rm -rf /home/ubuntu/test/dist_tmp
