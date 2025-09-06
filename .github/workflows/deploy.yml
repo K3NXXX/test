@@ -28,8 +28,19 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 5. Деплой на EC2 через SSH з sudo
-      - name: Deploy to EC2
+      # 5. Завантаження білду на EC2
+      - name: Upload build to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          source: "dist/*"
+          target: "/home/ubuntu/test/dist"
+
+      # 6. Переміщення білду в /var/www/dist та налаштування nginx
+      - name: Deploy to nginx folder
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
