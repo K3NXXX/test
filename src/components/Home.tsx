@@ -13,7 +13,7 @@ export function Home() {
 
 	return (
 		<div>
-			<p>топ</p>
+			<p>bleach</p>
 		</div>
 	)
 }

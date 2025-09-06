@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy React SPA to EC2
 
 on:
   push:
@@ -37,13 +37,10 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           script: |
-            # Очистка попереднього бандлу
-            sudo rm -rf /var/www/dist/*
+            # Використовуємо rsync для копіювання нового бандлу
+            rsync -av --delete /home/ubuntu/test/dist/ /var/www/dist/
 
-            # Копіювання нового бандлу (вкажи реальний шлях до репозиторію на EC2)
-            sudo cp -r /home/ubuntu/test/dist/* /var/www/dist/
-
-            # Встановлення прав для Nginx
+            # Встановлюємо права для Nginx
             sudo chown -R www-data:www-data /var/www/dist
             sudo chmod -R 755 /var/www/dist
 
