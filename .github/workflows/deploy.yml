@@ -28,7 +28,13 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 5. Завантаження білду на EC2 у тимчасову папку
+      # 5. Створення тимчасової папки з вмістом dist
+      - name: Prepare build for upload
+        run: |
+          mkdir -p build_tmp
+          cp -r dist/* build_tmp/
+
+      # 6. Завантаження білду на EC2 у тимчасову папку
       - name: Upload build to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -36,10 +42,10 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           port: 22
-          source: "dist/*"
+          source: "build_tmp/*"
           target: "/home/ubuntu/test/dist_tmp"
 
-      # 6. Переміщення білду у /var/www/dist без зайвої папки dist
+      # 7. Переміщення білду у /var/www/dist без вкладеної папки
       - name: Deploy to nginx folder
         uses: appleboy/ssh-action@v0.1.7
         with:
