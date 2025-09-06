@@ -1,0 +1,42 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - master  # або твоя основна гілка
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Клон репозиторію
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Налаштування Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # 3. Встановлення залежностей
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Збірка проекту
+      - name: Build project
+        run: npm run build
+
+      # 5. Деплой на EC2 через SSH
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script: |
+            rm -rf /var/www/dist/*
+            cp -r ./dist/* /var/www/dist/
+            sudo systemctl reload nginx
