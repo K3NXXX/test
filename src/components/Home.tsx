@@ -13,7 +13,7 @@ export function Home() {
 
 	return (
 		<div>
-			<p>Home qwdqwd qqwd qwdqwd qwd qwqw qwd wq d</p>
+			<p>топ</p>
 		</div>
 	)
 }

@@ -37,6 +37,15 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           script: |
-            rm -rf /var/www/dist/*
-            cp -r ./dist/* /var/www/dist/
+            # Очистка попереднього бандлу
+            sudo rm -rf /var/www/dist/*
+
+            # Копіювання нового бандлу (вкажи реальний шлях до репозиторію на EC2)
+            sudo cp -r /home/ubuntu/test/dist/* /var/www/dist/
+
+            # Встановлення прав для Nginx
+            sudo chown -R www-data:www-data /var/www/dist
+            sudo chmod -R 755 /var/www/dist
+
+            # Перезавантаження Nginx
             sudo systemctl reload nginx
