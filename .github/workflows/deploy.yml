@@ -10,25 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Клон репозиторію
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Налаштування Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      # 3. Встановлення залежностей
       - name: Install dependencies
         run: npm install
 
-      # 4. Збірка проекту
       - name: Build project
         run: npm run build
 
-      # 5. Завантаження білду на EC2 у тимчасову папку
+      # ⚡ Тут важливо: копіюємо вміст dist/*
       - name: Upload build to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -36,10 +32,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           port: 22
-          source: "dist/*"            # беремо файли напряму з dist/
+          source: "dist/*"
           target: "/home/ubuntu/test/dist_tmp"
 
-      # 6. Переміщення білду у /var/www/dist
       - name: Deploy to nginx folder
         uses: appleboy/ssh-action@v0.1.7
         with:
