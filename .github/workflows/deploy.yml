@@ -28,19 +28,8 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 5. Копіюємо білд на EC2
-      - name: Copy build to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          port: 22
-          source: "dist/*"
-          target: "/var/www/dist/"
-
-      # 6. Встановлюємо права і перезавантажуємо Nginx
-      - name: Set permissions and reload Nginx
+      # 5. Деплой на EC2 через SSH з sudo
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -48,6 +37,15 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           script: |
+            set -e
+            echo "Створюємо папку /var/www/dist (якщо її нема)"
+            sudo mkdir -p /var/www/dist
+            echo "Очищаємо старий білд"
+            sudo rm -rf /var/www/dist/*
+            echo "Копіюємо новий білд"
+            sudo cp -r /home/ubuntu/test/dist/* /var/www/dist/
+            echo "Встановлюємо права для nginx"
             sudo chown -R www-data:www-data /var/www/dist
             sudo chmod -R 755 /var/www/dist
+            echo "Перезавантажуємо nginx"
             sudo systemctl reload nginx
