@@ -28,7 +28,11 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 5. Деплой на EC2 через SSH
+      # 5. Перевірка, що білд зібрався
+      - name: List build files
+        run: ls -la ./dist
+
+      # 6. Деплой на EC2 через SSH
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -37,12 +41,15 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           port: 22
           script: |
-            # Використовуємо rsync для копіювання нового бандлу
-            rsync -av --delete /home/ubuntu/test/dist/ /var/www/dist/
+            # Створюємо папку для білду, якщо не існує
+            sudo mkdir -p /var/www/dist
+
+            # Копіюємо білд з GitHub runner на EC2
+            rsync -av --delete ./dist/ /var/www/dist/
 
             # Встановлюємо права для Nginx
             sudo chown -R www-data:www-data /var/www/dist
             sudo chmod -R 755 /var/www/dist
 
-            # Перезавантаження Nginx
+            # Перезавантажуємо Nginx
             sudo systemctl reload nginx
